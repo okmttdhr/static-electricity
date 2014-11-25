@@ -1,13 +1,3 @@
-// setInterval(Lightning_func.loop(), 1000 / 60);
-
-// cs.beginPath(); // パスのリセット
-// cs.lineWidth = 1;
-// cs.strokeStyle = "#fff";
-// cs.moveTo(0,10); // 開始位置
-// cs.lineTo(200,10); // 次の位置
-// cs.stroke(); // 描画
-
-
 var context; // audio
 
 var canvas_context;
@@ -75,8 +65,12 @@ var oscillator = {
       osc.stop(0);
     },100);
 
-    // loop();
-    setInterval("loop()", 1000 / 60);
+    var loop_timer = setInterval("loop()", 1000 / 60);
+    setTimeout(function() {
+      clearInterval(loop_timer);
+      loop(true);
+    }, 800);
+
   },
   type: {
     sine: ['sine', 0],
@@ -244,31 +238,18 @@ function lightning_init() {
   // Lightningを生成
   lightning = new Lightning(Point.create(points[0]), Point.create(points[1]));
 
-  loop();
+  loop(true);  
 }
 
-function loop() {
+function loop(straight) {
   canvas_context.fillStyle = "#0b5693";
   canvas_context.fillRect(0, 0, canvas.width, canvas.height);
 
   lightning.start(points[0]);
   lightning.end(points[1]);
   lightning.step(Math.ceil(lightning.length() / 7.5));
-  lightning.update();
+  lightning.update(straight);
   lightning.draw(canvas_context);
-
-  setTimeout(function() {
-    console.log('setTimeout');
-
-    canvas_context.fillStyle = "#0b5693";
-    canvas_context.fillRect(0, 0, canvas.width, canvas.height);
-
-    lightning.start(points[0]);
-    lightning.end(points[1]);
-    lightning.step(Math.ceil(lightning.length() / 7.5));
-    lightning.update(true);
-    lightning.draw(canvas_context);
-  }, 1000);
 }
 
 

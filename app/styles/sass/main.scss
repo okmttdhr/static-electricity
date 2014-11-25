@@ -19,9 +19,7 @@ body {
 }
 
 /* Custom page header */
-.header {
-  border-bottom: 1px solid #e5e5e5;
-}
+.header {}
 
 /* Make the masthead heading the same height as the navigation */
 .header h3 {
@@ -88,6 +86,21 @@ body {
 }
 
 /* okp edit */
+.header_okp {
+  width: 100vw;
+  position: fixed;
+  top: 0px;
+}
+
+.play_wrapper {
+  width: 100vw;
+  margin-top: -55px;
+  margin-top: -150px;
+  text-align: center;
+  position: fixed;
+  top: 50%;
+}
+
 .audio_lightning {
   width: 100vw;
   height: 100vh;
