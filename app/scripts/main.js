@@ -75,8 +75,8 @@ var oscillator = {
       osc.stop(0);
     },100);
 
-    loop();
-    // setInterval("loop()", 1000 / 60);
+    // loop();
+    setInterval("loop()", 1000 / 60);
   },
   type: {
     sine: ['sine', 0],
@@ -89,42 +89,32 @@ var oscillator = {
 var Lightning = function(startPoint, endPoint, stepNum) {
   var self = this;
 
-  //Lightningの開始ポイント
+  // Lightningの開始ポイント
   var start = startPoint || new Point();
 
-  //Lightningの終了ポイント
+  // Lightningの終了ポイント
   var end = endPoint || new Point();
 
-  //ステップ数。雷の刻む軌跡の数？
+  // ステップ数。雷の刻む軌跡の数？
   var step = stepNum || 45;
 
-  //開始と終了ポイントの距離
+  // 開始と終了ポイントの距離
   var length = start.distance(end);
 
-  //PerlinNoiseを生成
+  // PerlinNoiseを生成
   var perlinNoise = new PerlinNoise(Math.floor(Math.random() * 1000) + 1);
 
-  //PerlinNoiseのオクターブを6に設定
+  // PerlinNoiseのオクターブを6に設定
   perlinNoise.octaves(6);
 
   //オフセット？
   var off = 0;
 
-  var points;
-
-  //雷の子どもを格納する配列
-  var children = [];
-
   // case by child
   var parent = null;
-  var startStep = 0;
-  var endStep = 0;
-  var timer;
 
-  // speed
+  var points;
   self.speed = 0.02;
-
-  // line width
   self.lineWidth = 1;
 
   // 開始ポイントの位置のgetter/setter
@@ -164,7 +154,7 @@ var Lightning = function(startPoint, endPoint, stepNum) {
   };
 
   // update処理（位置計算のコア部分）
-  self.update = function() {
+  self.update = function(straight) {
     if (parent) {
       if (endStep > parent.step()) {
         this.getStepsFromParent();
@@ -176,18 +166,19 @@ var Lightning = function(startPoint, endPoint, stepNum) {
 
     var length = self.length();
     var normal = end.subtract(start).normalize(length / step);
-    var rad = normal.angle(); //正規化した値を元に角度を算出
+    var rad = normal.angle(); // 正規化した値を元に角度を算出
     var sin = Math.sin(rad);
     var cos = Math.cos(rad);
-    var i, len;
+    var i;
+    var len;
 
     points = [];
     off += self.speed;
 
     for (i = 0, len = step + 1; i < len; i++) {
 
-      //+-逆転したoffset値でna, nbふたつのノイズを生成。
-      //ふたつのノイズの差分を取り、それを元に微細なノイズをsin波に乗せて表示。
+      // +-逆転したoffset値でna, nbふたつのノイズを生成。
+      // ふたつのノイズの差分を取り、それを元に微細なノイズをsin波に乗せて表示。
       var na = length * perlinNoise.noise(i / 50 - off);// * 1.5;
       var ax = sin * na;
       var ay = cos * na;
@@ -196,9 +187,13 @@ var Lightning = function(startPoint, endPoint, stepNum) {
       var bx = sin * nb;
       var by = cos * nb;
 
-      //180度をステップ数で分割した値を使用。
-      //両端は0、つまり位置を固定する。(sin(0)とsin(180)はともに0)
-      var m = Math.sin((Math.PI * (i / (len - 1))));
+      // 180度をステップ数で分割した値を使用。
+      // 両端は0、つまり位置を固定する。(sin(0)とsin(180)はともに0)
+      if (straight) {
+        var m = 0;
+      } else {
+        var m = Math.sin( ( Math.PI * ( i / (len - 1) ) ) );
+      }
 
       var x = start.x + normal.x * i + (ax - bx) * m;
       var y = start.y + normal.y * i - (ay - by) * m;
@@ -206,32 +201,26 @@ var Lightning = function(startPoint, endPoint, stepNum) {
       points.push(new Point(x, y));
     }
 
-    // Update children
-    for (i = 0, len = children.length; i < len; i++) {
-      children[i].update();
-    }
   };
 
   // レンダリング処理
   // 格納されているpointsオブジェクトの位置にark(円)を描く
   self.draw = function(ctx) {
-    var i, len, p;
+    var i;
+    var len = points.length;
+    var p;
 
     ctx.save();
     ctx.lineWidth = self.lineWidth;
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.beginPath();
-    for (i = 0, len = points.length; i < len; i++) {
+    for (i = 0; i < len; i++) {
       p = points[i];
       ctx[i === 0 ? 'moveTo' : 'lineTo'](p.x, p.y);
     }
     ctx.stroke();
     ctx.restore();
 
-    // Draw children
-    for (i = 0, len = children.length; i < len; i++) {
-      children[i].draw(ctx);
-    }
   };
 }
 
@@ -267,6 +256,19 @@ function loop() {
   lightning.step(Math.ceil(lightning.length() / 7.5));
   lightning.update();
   lightning.draw(canvas_context);
+
+  setTimeout(function() {
+    console.log('setTimeout');
+
+    canvas_context.fillStyle = "#0b5693";
+    canvas_context.fillRect(0, 0, canvas.width, canvas.height);
+
+    lightning.start(points[0]);
+    lightning.end(points[1]);
+    lightning.step(Math.ceil(lightning.length() / 7.5));
+    lightning.update(true);
+    lightning.draw(canvas_context);
+  }, 1000);
 }
 
 
