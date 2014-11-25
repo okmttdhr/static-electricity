@@ -49,6 +49,7 @@ var audio = function() {
 var oscillator = {
   init: function() {
     var self = this;
+    var straight = true;
     osc = context.createOscillator();
     osc.frequency.value = 450;
     osc.type = (typeof osc.type === 'string') ? self.type.sawtooth[0] : self.type.sawtooth[1];
@@ -65,12 +66,7 @@ var oscillator = {
       osc.stop(0);
     },100);
 
-    var loop_timer = setInterval("loop()", 1000 / 60);
-    setTimeout(function() {
-      clearInterval(loop_timer);
-      loop(true);
-    }, 800);
-
+    loop_short(straight);
   },
   type: {
     sine: ['sine', 0],
@@ -220,6 +216,7 @@ var Lightning = function(startPoint, endPoint, stepNum) {
 
 function lightning_init() {
   var self = this;
+  var straight = true;
   canvas = document.getElementById('audio_lightning__js');
 
   if(!canvas.getContext) {
@@ -238,7 +235,7 @@ function lightning_init() {
   // Lightningを生成
   lightning = new Lightning(Point.create(points[0]), Point.create(points[1]));
 
-  loop(true);  
+  loop(straight);
 }
 
 function loop(straight) {
@@ -250,6 +247,14 @@ function loop(straight) {
   lightning.step(Math.ceil(lightning.length() / 7.5));
   lightning.update(straight);
   lightning.draw(canvas_context);
+}
+
+function loop_short(straight) {
+  var loop_timer = setInterval("loop()", 1000 / 60);
+  setTimeout(function() {
+    clearInterval(loop_timer);
+    loop(straight);
+  }, 800);
 }
 
 
