@@ -73,7 +73,10 @@ var oscillator = {
 
     setTimeout(function() {
       osc.stop(0);
-    },800);
+    },100);
+
+    loop();
+    // setInterval("loop()", 1000 / 60);
   },
   type: {
     sine: ['sine', 0],
@@ -103,7 +106,6 @@ var Lightning = function(startPoint, endPoint, stepNum) {
 
   //PerlinNoiseのオクターブを6に設定
   perlinNoise.octaves(6);
-  //perlinNoise.fallout(0.5);
 
   //オフセット？
   var off = 0;
@@ -123,73 +125,37 @@ var Lightning = function(startPoint, endPoint, stepNum) {
   self.speed = 0.02;
 
   // line width
-  self.lineWidth = 3;
+  self.lineWidth = 1;
 
-  // blur size and color
-  self.blur = 50;
-  self.blurColor = 'rgba(255, 255, 255, 0.75)';
-
-  //開始ポイントの位置のgetter/setter
+  // 開始ポイントの位置のgetter/setter
   self.start = function(x, y) {
     if (!arguments.length) return start.clone();
     start.set(x, y);
   };
 
-  //終了ポイントの位置のgetter/setter
+  // 終了ポイントの位置のgetter/setter
   self.end = function(x, y) {
     if (!arguments.length) return end.clone();
     end.set(x, y);
   };
 
-  //ステップ数のgetter/setter
+  // ステップ数のgetter/setter
   self.step = function(n) {
     if (!arguments.length) return step;
     step = Math.floor(n);
   };
 
-  //開始〜終了ポイントの距離を返す
+  // 開始〜終了ポイントの距離を返す
   self.length = function() {
     return start.distance(end);
   };
 
-  //pointsからindex位置のpointを返す
+  // pointsからindex位置のpointを返す
   self.point = function(index) {
     return points[index];
   };
 
-  //childrenのgetter/setter
-  self.childNum = function(num) {
-    if (arguments.length === 0) return children.length;
-
-    if (children.length > num) {
-      children.splice(num, children.length - num);
-
-    } else {
-      for (var i = children.length, child; i < num; i++) {
-        child = new Lightning();
-        child.speed = 0.03;
-        child.lineWidth = 1.5;
-        child.setAsChild(self);
-        children.push(child);
-      }
-    }
-  };
-
-  //thisオブジェクト（Lightning）を子どもとして引数のLightningオブジェクトに登録
-  self.setAsChild = function(lightning) {
-    if (!(lightning instanceof Lightning)) return;
-
-    parent = lightning;
-
-    timer = new Timer(Math.floor(Math.random() * 1500) + 1);
-    timer.onTimer = function() {
-      this.delay = Math.floor(Math.random() * 1500) + 1;
-      self.getStepsFromParent();
-    };
-    timer.start();
-  };
-
-  //親のLightningオブジェクトのstep数を取得
+  // 親のLightningオブジェクトのstep数を取得
   self.getStepsFromParent = function() {
     if (!parent) return;
     var parentStep = parent.step();
@@ -197,7 +163,7 @@ var Lightning = function(startPoint, endPoint, stepNum) {
     endStep = startStep + Math.floor(Math.random() * (parentStep - startStep - 2)) + 2;
   };
 
-  //update処理（位置計算のコア部分）
+  // update処理（位置計算のコア部分）
   self.update = function() {
     if (parent) {
       if (endStep > parent.step()) {
@@ -246,35 +212,14 @@ var Lightning = function(startPoint, endPoint, stepNum) {
     }
   };
 
-  //レンダリング処理
-  //基本的に、格納されているpointsオブジェクトの位置にark(円)を描きつつ、
-  //さらにその注視点をむすぶラインを引く処理
+  // レンダリング処理
+  // 格納されているpointsオブジェクトの位置にark(円)を描く
   self.draw = function(ctx) {
     var i, len, p;
 
-    // Blur
-    if (self.blur) {
-      var d;
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.fillStyle = 'rgba(0, 0, 0, 1)';
-      ctx.shadowBlur = self.blur;
-      ctx.shadowColor = self.blurColor;
-      ctx.beginPath();
-      for (i = 0, len = points.length; i < len; i++) {
-        p = points[i];
-        d = len > 1 ? p.distance(points[i === len - 1 ? i - 1 : i + 1]) : 0;
-        ctx.moveTo(p.x + d, p.y);
-        ctx.arc(p.x, p.y, d, 0, Math.PI * 2, false);
-      }
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.restore();
-    }
-
     ctx.save();
-    ctx.lineWidth = Math.random() * self.lineWidth + 1;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 1)';
+    ctx.lineWidth = self.lineWidth;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
     ctx.beginPath();
     for (i = 0, len = points.length; i < len; i++) {
       p = points[i];
@@ -292,23 +237,25 @@ var Lightning = function(startPoint, endPoint, stepNum) {
 
 function lightning_init() {
   var self = this;
-
   canvas = document.getElementById('audio_lightning__js');
+
   if(!canvas.getContext) {
     console.log('sorry');
     return false;
   }
+
   canvas_context = canvas.getContext('2d');
 
   points = [
     Point.create( 0, canvas.height / 2 ),
-    Point.create( 415, canvas.height / 2 )
+    Point.create( canvas.width, canvas.height / 2 )
+    // Point.create( 500, canvas.height / 2 )
   ];
 
-  //Lightningを生成
+  // Lightningを生成
   lightning = new Lightning(Point.create(points[0]), Point.create(points[1]));
 
-  setInterval("loop()", 1000 / 60);
+  loop();
 }
 
 function loop() {
