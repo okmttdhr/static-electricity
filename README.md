@@ -1,2 +1,4 @@
-createSound
+lightning
 ===========
+
+A simple lightning.
