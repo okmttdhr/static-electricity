@@ -1,4 +1,4 @@
-lightning
+Static Electricity
 ===========
 
-A simple lightning.
+This is the static electricity.
