@@ -100,11 +100,12 @@ body {
 /* line 89, ../sass/main.scss */
 .header_okp {
   width: 100vw;
+  padding: 10px;
   position: fixed;
   top: 0px;
 }
 
-/* line 95, ../sass/main.scss */
+/* line 97, ../sass/main.scss */
 .play_wrapper {
   width: 100vw;
   margin-top: -55px;
@@ -114,7 +115,7 @@ body {
   top: 50%;
 }
 
-/* line 104, ../sass/main.scss */
+/* line 106, ../sass/main.scss */
 .audio_lightning {
   width: 100vw;
   height: 100vh;

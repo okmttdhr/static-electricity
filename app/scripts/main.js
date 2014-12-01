@@ -1,3 +1,6 @@
+// I was trying to create sound with audio api, and sync it with the lightning.
+// But I just got fed up with this "design". I'll play with audio api on another day.
+
 var context; // audio
 
 var canvas_context;
@@ -26,6 +29,10 @@ var bind_event = {
 
     $('body').on('click', '#play_oscillator', function(e) {
       e.preventDefault();
+      oscillator.init();
+    });
+
+    $('body').on('click', function(e) {
       oscillator.init();
     });
   }
@@ -60,11 +67,11 @@ var oscillator = {
     osc.start = osc.start || osc.noteOn;
     osc.stop = osc.stop || osc.noteOff;
 
-    osc.start(0);
+    // osc.start(0);
 
-    setTimeout(function() {
-      osc.stop(0);
-    },100);
+    // setTimeout(function() {
+    //   osc.stop(0);
+    // },100);
 
     loop_short(straight);
   },
